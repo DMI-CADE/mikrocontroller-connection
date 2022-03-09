@@ -2,12 +2,13 @@
 
 FASTLED_USING_NAMESPACE
 
-#define DATA_PIN    3
+#define DATA_PIN1    3
+#define DATA_PIN2    5
 //#define CLK_PIN   4
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 //LEDs in einer Kette
-#define NUM_LEDS    18
+#define NUM_LEDS    12
 //LEDs für einen Spieler (6 Button mit jeweils 2 LEDs)
 #define LEDS_PLAYER    12
 //Es können maximal 6 HEX Werte übergeben werden
@@ -16,7 +17,8 @@ FASTLED_USING_NAMESPACE
 //Mögliche Farben von CRGB: http://fastled.io/docs/3.1/struct_c_r_g_b.html
 CRGB leds[NUM_LEDS];
 
-#define BRIGHTNESS         250
+
+#define BRIGHTNESS         150
 #define FRAMES_PER_SECOND  120
 
 //TODO Muss noch an die aktuelle Anzahl von LEDs angepasst werden!
@@ -34,7 +36,8 @@ void setup() {
   delay(500); // 0,5 second delay for recovery
   
   // tell FastLED about the LED strip configuration
-  FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE,DATA_PIN1,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE,DATA_PIN2,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   //FastLED.addLeds<LED_TYPE,DATA_PIN,CLK_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   
   // set master brightness control
