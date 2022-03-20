@@ -43,8 +43,8 @@ void setup() {
   
   //Die FastLED Objekte konfigurieren.
   //FastLED.addLeds<Chipsatz der LEDs, Output Pin, Farbreihenfolge der LEDs>(Array der LEDs, Anzahl der zu konfigurierenden LEDs in dem Array).setCorrection(Art der LED Anordnung);
-  FastLED.addLeds<LED_TYPE,DATA_PIN1,COLOR_ORDER>(player1, NUM_LEDS).setCorrection(TypicalLEDStrip);
-  FastLED.addLeds<LED_TYPE,DATA_PIN2,COLOR_ORDER>(player2, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE,DATA_PIN1,COLOR_ORDER>(leds1, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE,DATA_PIN2,COLOR_ORDER>(leds2, NUM_LEDS).setCorrection(TypicalLEDStrip);
   
   //Legt die allgemeine Helligkeit fest. (Werte zwischen 0 und 255)
   FastLED.setBrightness(BRIGHTNESS);
@@ -86,7 +86,7 @@ void loop() {
     //Testen, ob Input valide ist:
     Serial.println("Anzahl Zeichen: " +input.length());
 
-    switch:(checkState(input)){
+    switch(checkState(input)){
       case 1:
         //Normaler Input
         rainbow = false;
