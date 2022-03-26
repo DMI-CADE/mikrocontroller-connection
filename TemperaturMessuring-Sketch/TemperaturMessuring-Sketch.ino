@@ -1,3 +1,5 @@
+#include <arduino-timer.h>
+
 #define ThermistorPin0   0
 #define ThermistorPin1   1
 #define ThermistorPin2   2
@@ -5,6 +7,8 @@
 int input0;
 int input1;
 int input2;
+
+String output;
 
 float T0;
 float T1;
@@ -17,11 +21,12 @@ float c2 = 2.378405444e-04;
 float c3 = 2.019202697e-07;
 
 void setup() {
+  
   Serial.begin(9600);
 }
 
 void loop() {
-
+  
   input0 = analogRead(ThermistorPin0);
   T0 = transformInputToTemperatur(input0, 0);
   
@@ -32,21 +37,17 @@ void loop() {
   T2 = transformInputToTemperatur(input2, 2);
 
   Intern = readInternalTemperature();
-  
-  Serial.print("Temperature0: ");
-  Serial.print(T0);
-  Serial.print(" C; ");
-  Serial.print("Temperature1: ");
-  Serial.print(T1);
-  Serial.print(" C; ");
-  Serial.print("Temperature2: ");
-  Serial.print(T2);
-  Serial.print(" C; ");
-  Serial.print("Temperature Intern: ");
-  Serial.print(Intern);
-  Serial.println(" C; ");
 
-  delay(3000);
+  output = "Temperature0: " + String(T0) 
+    + " C; Temperature1: " + String(T1) 
+    + " C; Temperature2: " + String(T2) 
+    + " C; Temperature Intern: " + String(Intern) + " C;";
+
+  Serial.println(output);
+
+  //15min = 900000 Millisekunden
+  delay(900000);
+
 }
 
 float transformInputToTemperatur(int Input, int test){
