@@ -1,3 +1,12 @@
+/*
+ * Projekt: DMI-CADE
+ * Autor: Jan Schneider
+ * Arduino Sketch zum einlesen von RGB-Werten im HEX Format über eine serielle Schnittstelle.
+ * Die Werte werden anschließend auf zwei verschiedene LED-Stripes geladen.
+ * Beispieleingaben über ein serielles Terminal (für insgesamt 12 Buttons an der Arcade):
+ * 000000;FF00FF;FFFFFF;00FFFF;00FF00;0000FF;000000;FF00FF;FFFFFF;00FFFF;00FF00;0000FF; 
+*/
+
 #include <FastLED.h>
 
 FASTLED_USING_NAMESPACE
@@ -24,17 +33,18 @@ CRGB leds2[NUM_LEDS];
 String player1[NUM_LEDS];
 String player2[NUM_LEDS];
 
-//TODO kann eventuell ersetzt werden!
 //counter wird verwendet um die maximal 6 Input Werte auf das Array von 12 LEDs zu mappen.
 int counter = 0;
 
-//TODO wofür sind die beiden Variablen?
-//Muss wahrscheinlich nicht global deklariert werden!
+//Globale Variablen aus der Funktion getData()
 int stringData;
 String sectionData;
 
-//TODO bessere Doku!
-//Rainbow Modul ist sowas wie ein Idle State, wenn die Arcade z.B. im Menü ist
+/*
+ * Wird rainbow auf true gesetzt, wird bei jedem Durchlauf der Loop ein neuer Farbwert auf die Buttons gepusht.
+ * Dieser wird mittels rainbow_cycle_state kontinuierlich angepasst. So werden mit der Zeit alle Farben des 255er RGB Spektrums durchlaufen.
+ * Der Befehl rainbow; oder rainbow;\n wird auch über die serielle Schnittstelle abgefangen.
+ */
 bool rainbow = false;
 int rainbow_cycle_state = 0;
 
@@ -49,12 +59,11 @@ void setup() {
   //Legt die allgemeine Helligkeit fest. (Werte zwischen 0 und 255)
   FastLED.setBrightness(BRIGHTNESS);
 
-  delay(500); // 0,5 Sekunden delay um sicherzustellen, dass die Daten korrekt übernommen wurden. (optional)
-
   /*
    * Zum Testen können inital einfach einmal alle LEDs auf Rot gesetzt werden:
    * for(int i = 0; i < NUM_LEDS; i++){
-   *  leds[i] = CRGB::Red;
+   *  leds1[i] = CRGB::Red;
+   *  leds2[i] = CRGB::Red;
    * }
    * FastLED.show();
    */
@@ -64,18 +73,9 @@ void setup() {
   while (!Serial) {
     ; //Warten bis ein serieller Port verbunden ist.
   }
-
-  //Test der Seriellen Verbindung. Kann noch entfernt werden.
-  byte test = 0xFF;
-  Serial.println(test, HEX);
 }
 
 void loop() {
-  //Beispieleingaben
-  //000000;FF00FF;FFFFFF;00FFFF;00FF00;0000FF;000000;FF00FF;FFFFFF;00FFFF;00FF00;0000FF;
-
-  //Soll der Array gelöscht werden oder alle Werte auf Schwarz gesetzt werden:
-  //memset(buttonArray, 0x000000, sizeof(player1));
 
   //Solange der serielle Port Daten im Input erkennt wird diese Schleife ausgeführt.
   while (Serial.available() > 0) {
@@ -84,26 +84,50 @@ void loop() {
     String input = Serial.readString();
 
     //Testen, ob Input valide ist:
-    Serial.println("Anzahl Zeichen: " +input.length());
+    if(correctInput(input)){
 
-    switch(checkState(input)){
-      case 1:
-        //Normaler Input
-        rainbow = false;
-        
-        saveInputData(input);
-        readDataAndPushToLEDs();
-        break;
-      case 2:
-        //Rainbow Sate
-        rainbow = true;
-        break;
+      //switch case um verschiede Modi abzubilden: 1 = RGB Werte auf Button pushen, 2 = rainbow Mode
+      //Für eigene Module können hier cases ergänzt werden.
+      switch(checkState(input)){
+        case 1:
+          //Normaler Input
+          rainbow = false;
+          
+          saveInputData(input);
+          readDataAndPushToLEDs();
+          break;
+          
+        case 2:
+          //Rainbow Sate
+          rainbow = true;
+          break;
+          
+        default:
+          rainbow = false;
+          break;
+      }
     }
   }
 
   //Prüft in der loop(), ob rainbow aktiv sein soll.
   if(rainbow){
     rainbowState();
+  }
+}
+
+bool correctInput(String input){
+  /*  
+   *   Um fehlerhafte Inputs oder gezielte Manipulation über den seriellen Eingang zu vermeiden wird auf die Länge des Inputs geprüft.
+   *   Eine normale Übertragung für alle 12 Buttons sollte 84 Zeichen lang sein (mit einem NewLine \n am Ende 85).
+   *   Wird rainbow; übergeben sollte der Input 8 oder 9 Zeichen lang sein.
+   *   Sollten noch weitere Module wie rainbow hinzukommen, müssten diese hier mit aufgenommen werden.
+   *   Allerdings sollte man auf dem Arduino nur noch Module ergänzen, die nicht über den Processmanager erstellt werden können.
+   *   (Dort ist eine Implementierung um vielfaches einfacher!)
+   */
+  if(input.length() == 84 || input.length() == 85 || input.length() == 8 || input.length() == 9){
+    return true;
+  }else{
+    return false;
   }
 }
 
@@ -126,7 +150,7 @@ void saveInputData(String input){
   
     if(buttonColor != ""){
 
-      if(i <= MAX_INPUT_STREAM_VALUES / 2){
+      if(i < MAX_INPUT_STREAM_VALUES / 2){
         
         //Überschreibt den Wert im player1 Array an der Stelle des Counters und auch die nachfolgende Stelle.
         //Zum Ende wird der Counter dann um 2 erhöht für das nächste LED Tuple.
