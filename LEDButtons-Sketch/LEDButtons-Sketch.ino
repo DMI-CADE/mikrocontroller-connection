@@ -59,14 +59,12 @@ void setup() {
   //Legt die allgemeine Helligkeit fest. (Werte zwischen 0 und 255)
   FastLED.setBrightness(BRIGHTNESS);
 
-  /*
-   * Zum Testen können inital einfach einmal alle LEDs auf Rot gesetzt werden:
-   * for(int i = 0; i < NUM_LEDS; i++){
-   *  leds1[i] = CRGB::Red;
-   *  leds2[i] = CRGB::Red;
-   * }
-   * FastLED.show();
-   */
+  //Zum Testen der LEDs - wird auch so lange angezeigt, bis eine serielle Verbindung besteht.
+  for(int i = 0; i < NUM_LEDS; i++){
+   leds1[i] = CRGB::Blue;
+   leds2[i] = CRGB::Blue;
+  }
+  FastLED.show();
 
   //Starten des seriellen Ports mit 9600 bps:
   Serial.begin(9600);
