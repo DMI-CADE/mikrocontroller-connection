@@ -123,14 +123,13 @@ bool correctInput(String input){
    *   (Dort ist eine Implementierung um vielfaches einfacher!)
    */
   if(input.length() == 84 || input.length() == 85 || input.length() == 8 || input.length() == 9){
-    return true;
-
     for(int i = 0; i < NUM_LEDS; i++){
      leds1[i] = CRGB::Black;
      leds2[i] = CRGB::Black;
     }
     FastLED.show();
     
+    return true;
   }else{
     return false;
   }
