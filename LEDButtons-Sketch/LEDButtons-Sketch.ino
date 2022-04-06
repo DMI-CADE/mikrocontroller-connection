@@ -181,11 +181,11 @@ void saveInputData(String input){
           controlButtons[j] = buttonData[j];
         }
 
-        digitalWrite(MENUEBUTTON, controlButtons[0]);
-        digitalWrite(STARTBUTTON1, controlButtons[1]);
-        digitalWrite(STARTBUTTON2, controlButtons[2]);
-        digitalWrite(COINBUTTON1, controlButtons[3]);
-        digitalWrite(COINBUTTON2, controlButtons[4]);
+        digitalWrite(MENUEBUTTON, controlButtons[0] ? HIGH : LOW);
+        digitalWrite(STARTBUTTON1, controlButtons[1] ? HIGH : LOW);
+        digitalWrite(STARTBUTTON2, controlButtons[2] ? HIGH : LOW);
+        digitalWrite(COINBUTTON1, controlButtons[3] ? HIGH : LOW);
+        digitalWrite(COINBUTTON2, controlButtons[4] ? HIGH : LOW);
         
       }else{
         
