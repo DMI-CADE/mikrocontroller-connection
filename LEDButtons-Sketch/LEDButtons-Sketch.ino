@@ -14,13 +14,22 @@ FASTLED_USING_NAMESPACE
 #define DATA_PIN1     3
 #define DATA_PIN2     5
 
+#define MENUEBUTTON   8
+#define STARTBUTTON1  9
+#define STARTBUTTON2  10
+#define COINBUTTON1   11
+#define COINBUTTON2   12
+
+//Anzahl der Control Buttons (2xCoin, 2xStart, 1xMenü)
+#define CON_BUTTONS   5
+
 #define LED_TYPE      WS2812B
 #define COLOR_ORDER   GRB
 
 //LEDs in Reihe pro Player
 #define NUM_LEDS      12
-//Es können maximal 12 HEX Werte übergeben werden, einen pro Button
-#define MAX_INPUT_STREAM_VALUES   12
+//Es können maximal 12 HEX Werte übergeben werden, einen pro Button. Dazu kommt noch ein Abschnitt für die Coin/Menü/Start Buttons
+#define MAX_INPUT_STREAM_VALUES   13
 
 #define BRIGHTNESS         150
 #define FRAMES_PER_SECOND  120
@@ -32,6 +41,8 @@ CRGB leds2[NUM_LEDS];
 //In den nachfolgenden Arrays werden die übergebenden Werte als String abgespeichert. (12 LEDs pro Player)
 String player1[NUM_LEDS];
 String player2[NUM_LEDS];
+
+bool controlButtons[CON_BUTTONS];
 
 //counter wird verwendet um die maximal 6 Input Werte auf das Array von 12 LEDs zu mappen.
 int counter = 0;
@@ -71,6 +82,21 @@ void setup() {
   while (!Serial) {
     ; //Warten bis ein serieller Port verbunden ist.
   }
+
+  pinMode(MENUEBUTTON, OUTPUT); 
+  pinMode(STARTBUTTON1, OUTPUT); 
+  pinMode(STARTBUTTON2, OUTPUT); 
+  pinMode(COINBUTTON1, OUTPUT); 
+  pinMode(COINBUTTON2, OUTPUT);
+
+  /*
+   * Test für Pin Buttons setzt alle auf HIGH. Kann später wieder auskommentiert werden!
+   */
+  digitalWrite(MENUEBUTTON, HIGH);
+  digitalWrite(STARTBUTTON1, HIGH);
+  digitalWrite(STARTBUTTON2, HIGH);
+  digitalWrite(COINBUTTON1, HIGH);
+  digitalWrite(COINBUTTON2, HIGH);
 }
 
 void loop() {
@@ -122,13 +148,7 @@ bool correctInput(String input){
    *   Allerdings sollte man auf dem Arduino nur noch Module ergänzen, die nicht über den Processmanager erstellt werden können.
    *   (Dort ist eine Implementierung um vielfaches einfacher!)
    */
-  if(input.length() == 84 || input.length() == 85 || input.length() == 8 || input.length() == 9){
-    for(int i = 0; i < NUM_LEDS; i++){
-     leds1[i] = CRGB::Black;
-     leds2[i] = CRGB::Black;
-    }
-    FastLED.show();
-    
+  if(input.length() == 90 || input.length() == 91 || input.length() == 8 || input.length() == 9){
     return true;
   }else{
     return false;
@@ -150,30 +170,46 @@ void saveInputData(String input){
   for(int i = 0; i < MAX_INPUT_STREAM_VALUES; i++){
 
     //Sucht in dem String nach dem Trennzeichen. i ist der i-te Teilstring, den getData() zurück geben soll.
-    String buttonColor = getData(input, ';', i);
+    String buttonData = getData(input, ';', i);
   
-    if(buttonColor != ""){
+    if(buttonData != ""){
 
-      if(i < MAX_INPUT_STREAM_VALUES / 2){
+      if(i == 0){
         
-        //Überschreibt den Wert im player1 Array an der Stelle des Counters und auch die nachfolgende Stelle.
-        //Zum Ende wird der Counter dann um 2 erhöht für das nächste LED Tuple.
-        player1[counter] = buttonColor;
-        player1[counter+1] = buttonColor;
-        counter = counter +2;
-
-        //Wenn die ersten Inputwerte erfolgreich dem ersten Spieler zugewiesen wurden muss der Counter zurück gesetzt werden.
-        if(counter >= NUM_LEDS){
-          counter = 0;
+        for (int j = 0; j < CON_BUTTONS; i++) {
+          
+          controlButtons[j] = buttonData[j];
         }
+
+        digitalWrite(MENUEBUTTON, controlButtons[0]);
+        digitalWrite(STARTBUTTON1, controlButtons[1]);
+        digitalWrite(STARTBUTTON2, controlButtons[2]);
+        digitalWrite(COINBUTTON1, controlButtons[3]);
+        digitalWrite(COINBUTTON2, controlButtons[4]);
         
       }else{
         
-        //Überschreibt den Wert im player2 Array an der Stelle des Counters und auch die nachfolgende Stelle.
-        //Zum Ende wird der Counter dann um 2 erhöht für das nächste LED Tuple.
-        player2[counter] = buttonColor;
-        player2[counter+1] = buttonColor;
-        counter = counter +2;
+        if(i < MAX_INPUT_STREAM_VALUES / 2){
+        
+          //Überschreibt den Wert im player1 Array an der Stelle des Counters und auch die nachfolgende Stelle.
+          //Zum Ende wird der Counter dann um 2 erhöht für das nächste LED Tuple.
+          player1[counter] = buttonData;
+          player1[counter+1] = buttonData;
+          counter = counter +2;
+  
+          //Wenn die ersten Inputwerte erfolgreich dem ersten Spieler zugewiesen wurden muss der Counter zurück gesetzt werden.
+          if(counter >= NUM_LEDS){
+            counter = 0;
+          }
+          
+        }else{
+          
+          //Überschreibt den Wert im player2 Array an der Stelle des Counters und auch die nachfolgende Stelle.
+          //Zum Ende wird der Counter dann um 2 erhöht für das nächste LED Tuple.
+          player2[counter] = buttonData;
+          player2[counter+1] = buttonData;
+          counter = counter +2;
+        }
       }
     }
   }
