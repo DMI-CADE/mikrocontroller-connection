@@ -176,7 +176,7 @@ void saveInputData(String input){
 
       if(i == 0){
         
-        for (int j = 0; j < CON_BUTTONS; i++) {
+        for (int j = 0; j < CON_BUTTONS; j++) {
           
           controlButtons[j] = buttonData[j];
         }
