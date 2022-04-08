@@ -178,7 +178,7 @@ void saveInputData(String input){
         
         for (int j = 0; j < CON_BUTTONS; j++) {
           
-          controlButtons[j] = buttonData[j];
+          controlButtons[j] = buttonData[j] == '1';
         }
 
         digitalWrite(MENUEBUTTON, controlButtons[0] ? HIGH : LOW);
