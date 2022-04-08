@@ -189,7 +189,7 @@ void saveInputData(String input){
         
       }else{
         
-        if(i < MAX_INPUT_STREAM_VALUES / 2){
+        if(i <= MAX_INPUT_STREAM_VALUES / 2){
         
           //Überschreibt den Wert im player1 Array an der Stelle des Counters und auch die nachfolgende Stelle.
           //Zum Ende wird der Counter dann um 2 erhöht für das nächste LED Tuple.
